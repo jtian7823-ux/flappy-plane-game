@@ -460,8 +460,10 @@ canvas {
       const isChrome = isAndroid && /Chrome/.test(ua) && !/EdgA|OPR/.test(ua);
 
       // In-app browser detection — check FIRST before trusting isSafari
-      // Many in-app browsers on iOS include "Safari" in UA string
+      // Many in-app browsers on iOS have identical UA to Safari
       let inApp = null;
+
+      // 1. UA-based detection (works for apps that identify themselves)
       if (/FBAN|FBAV/i.test(ua)) inApp = 'Facebook';
       else if (/Instagram/i.test(ua)) inApp = 'Instagram';
       else if (/\bLine\//i.test(ua)) inApp = 'LINE';
@@ -471,21 +473,36 @@ canvas {
       else if (/WeChat|MicroMessenger/i.test(ua)) inApp = 'WeChat';
       else if (isAndroid && /wv|; wv\)/.test(ua)) inApp = 'WebView';
 
-      // iOS in-app fallback: if iOS but NOT real Safari
-      // Real Safari UA pattern: "...Version/xx.x Safari/xxx.x" at end, no extra app tokens
-      // In-app WebViews often: miss "Version/", or add extra tokens after "Safari/"
+      // 2. Telegram iOS: UA is IDENTICAL to Safari, but TG injects global JS
+      //    Detect via injected globals (tgBrowserHandleMutations, __tg__webview, etc.)
+      if (!inApp) {
+        try {
+          if (typeof window.TelegramWebviewProxy !== 'undefined'
+              || typeof window.__tg__webview !== 'undefined'
+              || typeof window.tgBrowserHandleMutations === 'function'
+              || (window.Telegram && window.Telegram.WebView)) {
+            inApp = 'Telegram';
+          }
+        } catch(e) {}
+      }
+
+      // 3. Generic iOS in-app fallback: missing Version/ or Safari/ header
       if (!inApp && isIOS) {
         const hasVersion = /Version\/[\d.]+/.test(ua);
         const hasSafari = /Safari\/[\d.]+/.test(ua);
         const hasCriOS = /CriOS|FxiOS|EdgiOS/.test(ua);
-        // Real Safari = has both Version/ and Safari/ and no third-party browser token
-        // In-app WebView = missing Version/ OR has unknown extra tokens
         if (!hasVersion || !hasSafari || hasCriOS) {
-          inApp = inApp || 'WebView';
+          inApp = 'WebView';
         }
       }
 
-      // isSafari is only true if iOS + real Safari + no in-app detected
+      // 4. Final heuristic: if iOS and NOT standalone Safari
+      //    Check navigator.standalone — undefined in WKWebView, false in Safari
+      if (!inApp && isIOS && typeof navigator.standalone === 'undefined') {
+        inApp = 'WebView';
+      }
+
+      // isSafari is only true if iOS + no in-app detected
       const isSafari = isIOS && !inApp;
 
       return { isIOS, isAndroid, isSafari, isChrome, inApp };
@@ -756,6 +773,13 @@ canvas {
   (function debugDetection() {
     localStorage.removeItem('pwa_installed');
     const env = PWA.detect();
+    // Probe Telegram globals
+    let tgSignals = [];
+    try { if (typeof window.TelegramWebviewProxy !== 'undefined') tgSignals.push('TelegramWebviewProxy'); } catch(e){}
+    try { if (typeof window.__tg__webview !== 'undefined') tgSignals.push('__tg__webview'); } catch(e){}
+    try { if (typeof window.tgBrowserHandleMutations === 'function') tgSignals.push('tgBrowserHandleMutations'); } catch(e){}
+    try { if (window.Telegram && window.Telegram.WebView) tgSignals.push('Telegram.WebView'); } catch(e){}
+
     const info = [
       `UA: ${navigator.userAgent}`,
       `---`,
@@ -764,6 +788,8 @@ canvas {
       `inApp: ${env.inApp || 'none'}`,
       `installed: ${PWA.isInstalled()}`,
       `hasVersion: ${/Version\/[\d.]+/.test(navigator.userAgent)}`,
+      `standalone: ${navigator.standalone}`,
+      `tgSignals: ${tgSignals.length ? tgSignals.join(', ') : 'none'}`,
     ].join('\n');
 
     const wrap = document.createElement('div');
