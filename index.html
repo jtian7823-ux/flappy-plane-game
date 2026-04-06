@@ -690,23 +690,23 @@ canvas {
     handleCTA() {
       const env = PWA.detect();
 
-      // Already installed → just open the app
-      if (PWA.isInstalled()) {
-        window.open(MKT.PWA_URL, '_blank');
+      // ★ In-app browser check FIRST — even if "installed", in-app can't open PWA properly
+      if (env.inApp) {
+        if (env.isAndroid) {
+          // Android in-app: try intent URL to escape to Chrome
+          const intentUrl = `intent://${MKT.PWA_URL.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
+          window.location.href = intentUrl;
+          setTimeout(() => PWA.showInAppWarning(env.inApp, env), 800);
+        } else {
+          // iOS in-app: ONLY show instructions, NEVER navigate
+          PWA.showInAppWarning(env.inApp, env);
+        }
         return;
       }
 
-      // In-app browser → warn and guide
-      if (env.inApp) {
-        // Android in-app: try intent URL first
-        if (env.isAndroid) {
-          const intentUrl = `intent://${MKT.PWA_URL.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
-          window.location.href = intentUrl;
-          // Fallback: show instructions after brief delay
-          setTimeout(() => PWA.showInAppWarning(env.inApp, env), 800);
-        } else {
-          PWA.showInAppWarning(env.inApp, env);
-        }
+      // Already installed → just open the app (only in real browsers)
+      if (PWA.isInstalled()) {
+        window.open(MKT.PWA_URL, '_blank');
         return;
       }
 
