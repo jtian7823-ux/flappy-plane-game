@@ -173,8 +173,11 @@ canvas {
   transform: translateY(0) scale(0.97);
 }
 .pwa-cta .cta-icon {
-  font-size: 1.3em;
-  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 .pwa-cta .cta-text-main {
   font-weight: 900;
@@ -270,7 +273,7 @@ canvas {
     <p class="tagline">Tap to fly. Dodge the obstacles. Beat your best.</p>
     <button id="playBtn">PLAY NOW</button>
     <a id="landingCta" class="pwa-cta" href="#" target="_blank" rel="noopener">
-      <span class="cta-icon">🎁</span>
+      <img class="cta-icon" src="app-icon.png" alt="App Icon" />
       <span>
         <span class="cta-text-main">GET THE APP</span>
         <span class="cta-text-sub">Exclusive rewards inside</span>
@@ -287,7 +290,7 @@ canvas {
 
 <!-- In-game floating CTA (shown during ready & dead states) -->
 <a id="gameCta" class="pwa-cta" href="#" target="_blank" rel="noopener">
-  <span class="cta-icon">🎁</span>
+  <img class="cta-icon" src="app-icon.png" alt="App Icon" />
   <span>
     <span class="cta-text-main">GET THE APP</span>
     <span class="cta-text-sub">Exclusive rewards inside</span>
@@ -306,12 +309,13 @@ canvas {
   // ============ MARKETING CONFIG ============
   // Client-specific settings — change these per client
   const MKT = {
-    // PWA install URL — replace with client's PWA URL
+    // Client's PWA install URL — player taps CTA → opens this URL to install client's PWA app
     PWA_URL: 'https://example.com/install',
-    // CTA text (can be customized per client)
+    // Client's app icon image (provided by client)
+    APP_ICON: 'app-icon.png',
+    // CTA copy
     CTA_MAIN: 'GET THE APP',
     CTA_SUB: 'Exclusive rewards inside',
-    CTA_ICON: '🎁',
   };
 
   // Apply config to CTA buttons
@@ -319,7 +323,7 @@ canvas {
     btn.href = MKT.PWA_URL;
     btn.querySelector('.cta-text-main').textContent = MKT.CTA_MAIN;
     btn.querySelector('.cta-text-sub').textContent = MKT.CTA_SUB;
-    btn.querySelector('.cta-icon').textContent = MKT.CTA_ICON;
+    btn.querySelector('.cta-icon').src = MKT.APP_ICON;
   });
 
   // ============ CONFIG ============
