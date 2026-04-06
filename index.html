@@ -457,11 +457,10 @@ canvas {
       const isIOS = /iPhone|iPad|iPod/.test(ua) ||
                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const isAndroid = /Android/.test(ua);
-      const isSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
       const isChrome = isAndroid && /Chrome/.test(ua) && !/EdgA|OPR/.test(ua);
 
-      // In-app browser detection — MUST run BEFORE isSafari is trusted
-      // Order matters: specific apps first, then generic WebView fallback
+      // In-app browser detection — check FIRST before trusting isSafari
+      // Many in-app browsers on iOS include "Safari" in UA string
       let inApp = null;
       if (/FBAN|FBAV/i.test(ua)) inApp = 'Facebook';
       else if (/Instagram/i.test(ua)) inApp = 'Instagram';
@@ -471,12 +470,25 @@ canvas {
       else if (/Snapchat/i.test(ua)) inApp = 'Snapchat';
       else if (/WeChat|MicroMessenger/i.test(ua)) inApp = 'WeChat';
       else if (isAndroid && /wv|; wv\)/.test(ua)) inApp = 'WebView';
-      else if (isIOS && !isSafari) inApp = 'WebView';
 
-      // If in-app detected, isSafari is NOT real Safari
-      const realSafari = isSafari && !inApp;
+      // iOS in-app fallback: if iOS but NOT real Safari
+      // Real Safari UA pattern: "...Version/xx.x Safari/xxx.x" at end, no extra app tokens
+      // In-app WebViews often: miss "Version/", or add extra tokens after "Safari/"
+      if (!inApp && isIOS) {
+        const hasVersion = /Version\/[\d.]+/.test(ua);
+        const hasSafari = /Safari\/[\d.]+/.test(ua);
+        const hasCriOS = /CriOS|FxiOS|EdgiOS/.test(ua);
+        // Real Safari = has both Version/ and Safari/ and no third-party browser token
+        // In-app WebView = missing Version/ OR has unknown extra tokens
+        if (!hasVersion || !hasSafari || hasCriOS) {
+          inApp = inApp || 'WebView';
+        }
+      }
 
-      return { isIOS, isAndroid, isSafari: realSafari, isChrome, inApp };
+      // isSafari is only true if iOS + real Safari + no in-app detected
+      const isSafari = isIOS && !inApp;
+
+      return { isIOS, isAndroid, isSafari, isChrome, inApp };
     },
 
     // --- Already-installed detection ---
@@ -740,10 +752,14 @@ canvas {
   // Make PWA accessible for inline onclick handlers in modal
   window.PWA = PWA;
 
-  // ====== DEBUG: show detection results on page load ======
+  // ====== DEBUG: show detection on page load ======
   (function debugDetection() {
+    // Clear installed flag on every debug load
+    localStorage.removeItem('pwa_installed');
+
     const env = PWA.detect();
     const info = [
+      `[PWA Debug v5]`,
       `UA: ${navigator.userAgent}`,
       `---`,
       `isIOS: ${env.isIOS}`,
@@ -752,19 +768,13 @@ canvas {
       `isChrome: ${env.isChrome}`,
       `inApp: ${env.inApp || 'none'}`,
       `installed: ${PWA.isInstalled()}`,
+      `hasVersion: ${/Version\/[\d.]+/.test(navigator.userAgent)}`,
     ].join('\n');
 
+    // Fixed debug panel at top (impossible to miss)
     const dbg = document.createElement('div');
-    dbg.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.85);color:#0f0;font:11px monospace;padding:10px;z-index:99999;white-space:pre-wrap;max-height:35vh;overflow:auto;pointer-events:auto;';
+    dbg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font:11px/1.5 monospace;padding:12px;z-index:99999;white-space:pre-wrap;max-height:40vh;overflow:auto;pointer-events:auto;border-bottom:3px solid #0f0;';
     dbg.textContent = info;
-
-    // Add reset button
-    const resetBtn = document.createElement('button');
-    resetBtn.textContent = '🗑 Reset installed flag';
-    resetBtn.style.cssText = 'display:block;margin-top:8px;padding:6px 12px;background:#ff6b6b;color:#fff;border:none;border-radius:4px;font:bold 12px sans-serif;cursor:pointer;';
-    resetBtn.onclick = () => { localStorage.removeItem('pwa_installed'); location.reload(); };
-    dbg.appendChild(resetBtn);
-
     document.body.appendChild(dbg);
   })();
   // ====== END DEBUG ======
