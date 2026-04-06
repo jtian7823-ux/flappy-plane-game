@@ -781,52 +781,6 @@ canvas {
   // Make PWA accessible for inline onclick handlers in modal
   window.PWA = PWA;
 
-  // ====== DEBUG: collapsible panel ======
-  (function debugDetection() {
-    localStorage.removeItem('pwa_installed');
-    const env = PWA.detect();
-    // Probe Telegram globals
-    let tgSignals = [];
-    try { if (typeof window.TelegramWebviewProxy !== 'undefined') tgSignals.push('TelegramWebviewProxy'); } catch(e){}
-    try { if (typeof window.__tg__webview !== 'undefined') tgSignals.push('__tg__webview'); } catch(e){}
-    try { if (typeof window.tgBrowserHandleMutations === 'function') tgSignals.push('tgBrowserHandleMutations'); } catch(e){}
-    try { if (window.Telegram && window.Telegram.WebView) tgSignals.push('Telegram.WebView'); } catch(e){}
-
-    const info = [
-      `UA: ${navigator.userAgent}`,
-      `---`,
-      `isIOS: ${env.isIOS} | isAndroid: ${env.isAndroid}`,
-      `isSafari: ${env.isSafari} | isChrome: ${env.isChrome}`,
-      `inApp: ${env.inApp || 'none'}`,
-      `installed: ${PWA.isInstalled()}`,
-      `hasVersion: ${/Version\/[\d.]+/.test(navigator.userAgent)}`,
-      `standalone: ${navigator.standalone}`,
-      `tgSignals: ${tgSignals.length ? tgSignals.join(', ') : 'none'}`,
-    ].join('\n');
-
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;pointer-events:auto;';
-
-    const toggle = document.createElement('button');
-    toggle.textContent = '🐛 Debug';
-    toggle.style.cssText = 'position:absolute;bottom:100%;right:8px;background:#000;color:#0f0;border:1px solid #0f0;border-bottom:none;border-radius:6px 6px 0 0;padding:4px 12px;font:bold 12px monospace;cursor:pointer;';
-
-    const panel = document.createElement('div');
-    panel.style.cssText = 'background:#000;color:#0f0;font:11px/1.5 monospace;padding:10px;white-space:pre-wrap;max-height:35vh;overflow:auto;border-top:2px solid #0f0;display:none;';
-    panel.textContent = info;
-
-    toggle.onclick = () => {
-      const open = panel.style.display !== 'none';
-      panel.style.display = open ? 'none' : 'block';
-      toggle.textContent = open ? '🐛 Debug' : '✕ Close';
-    };
-
-    wrap.appendChild(toggle);
-    wrap.appendChild(panel);
-    document.body.appendChild(wrap);
-  })();
-  // ====== END DEBUG ======
-
   // Apply config + install state to CTA buttons
   PWA.updateCTAs();
 
