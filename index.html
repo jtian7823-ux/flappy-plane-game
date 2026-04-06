@@ -679,16 +679,7 @@ canvas {
     showInAppWarning(browser, platform) {
       const browserName = browser || '應用程式';
       const targetBrowser = platform.isIOS ? 'Safari' : 'Chrome';
-      const instructions = {
-        'Facebook': `點擊右下角 <strong>⋯</strong> 選單 → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'Instagram': `點擊右上角 <strong>⋯</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'LINE': `點擊右下角 <strong>⋮</strong> → <strong>在預設瀏覽器開啟</strong>`,
-        'Twitter': `點擊右下角 <strong>⋯</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'Telegram': `點擊右上角 <strong>⋮</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'Snapchat': `長按連結 → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'WeChat': `點擊右上角 <strong>⋯</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
-        'WebView': `請複製網址，到 <strong>${targetBrowser}</strong> 貼上開啟`,
-      };
+      const pageUrl = window.location.href;
 
       PWA.showModal(`
         <div class="inapp-warning">
@@ -698,15 +689,40 @@ canvas {
         <div class="steps">
           <div class="step">
             <span class="step-num">1</span>
-            <span class="step-text">${instructions[browser] || instructions['WebView']}</span>
+            <span class="step-text">點擊下方按鈕<strong>複製連結</strong></span>
           </div>
           <div class="step">
             <span class="step-num">2</span>
-            <span class="step-text">在 ${targetBrowser} 中重新點擊 <strong>安裝按鈕</strong></span>
+            <span class="step-text">打開 <strong>${targetBrowser}</strong>，貼上網址並前往</span>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <span class="step-text">在 ${targetBrowser} 中點擊 <strong>安裝按鈕</strong></span>
           </div>
         </div>
-        <button class="modal-btn" onclick="PWA.hideModal()">了解</button>
+        <button class="modal-btn" id="modalCopyBtn">📋 複製連結到 ${targetBrowser}</button>
+        <p id="modalCopyFeedback" style="margin-top:10px;font-size:0.8rem;color:#66bb6a;display:none;">✅ 已複製！請打開 ${targetBrowser} 貼上</p>
       `);
+      setTimeout(() => {
+        const copyBtn = document.getElementById('modalCopyBtn');
+        if (copyBtn) copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(pageUrl);
+          } catch(e) {
+            // Fallback for older browsers
+            const ta = document.createElement('textarea');
+            ta.value = pageUrl;
+            ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          copyBtn.textContent = '✅ 已複製！';
+          copyBtn.style.background = '#66bb6a';
+          document.getElementById('modalCopyFeedback').style.display = 'block';
+        });
+      }, 50);
     },
 
     showAndroidGuide() {
