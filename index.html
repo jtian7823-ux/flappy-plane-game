@@ -451,6 +451,38 @@ canvas {
 
   // ============ PWA INSTALL ENGINE ============
   const PWA = {
+    // --- Landing Page Params → localStorage backup ---
+    // Captures ALL query params from the landing page URL on first load,
+    // stores them in localStorage so they survive browser changes (In-App → Safari)
+    // and get baked into the PWA URL at install time.
+    captureParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.toString()) {
+        // Merge with any previously stored params (earlier visit may have had different params)
+        const stored = PWA.getStoredParams();
+        for (const [k, v] of params.entries()) {
+          stored[k] = v; // newer params overwrite older ones
+        }
+        localStorage.setItem('pwa_params', JSON.stringify(stored));
+      }
+    },
+
+    getStoredParams() {
+      try {
+        return JSON.parse(localStorage.getItem('pwa_params') || '{}');
+      } catch(e) { return {}; }
+    },
+
+    // Build final PWA URL = MKT.PWA_URL + stored params
+    getPwaUrl() {
+      const params = PWA.getStoredParams();
+      const url = new URL(MKT.PWA_URL);
+      for (const [k, v] of Object.entries(params)) {
+        url.searchParams.set(k, v);
+      }
+      return url.toString();
+    },
+
     // --- Platform Detection ---
     detect() {
       const ua = navigator.userAgent || '';
@@ -561,7 +593,7 @@ canvas {
       <key>Label</key>
       <string>${PWA.escXML(MKT.APP_NAME)}</string>
       <key>URL</key>
-      <string>${PWA.escXML(MKT.PWA_URL)}</string>
+      <string>${PWA.escXML(PWA.getPwaUrl())}</string>
       <key>FullScreen</key>
       <true/>
       <key>Icon</key>
@@ -730,8 +762,8 @@ canvas {
     },
 
     showAndroidGuide() {
-      // Android: open the PWA_URL directly, Chrome will handle install prompt
-      window.open(MKT.PWA_URL, '_blank');
+      // Android: open the PWA_URL with params, Chrome will handle install prompt
+      window.open(PWA.getPwaUrl(), '_blank');
       PWA.markInstalled();
     },
 
@@ -745,9 +777,9 @@ canvas {
         return;
       }
 
-      // Already installed → just open the app (only in real browsers)
+      // Already installed → just open the app with params (only in real browsers)
       if (PWA.isInstalled()) {
-        window.open(MKT.PWA_URL, '_blank');
+        window.open(PWA.getPwaUrl(), '_blank');
         return;
       }
 
@@ -763,8 +795,8 @@ canvas {
         return;
       }
 
-      // Desktop / other → just open URL
-      window.open(MKT.PWA_URL, '_blank');
+      // Desktop / other → just open URL with params
+      window.open(PWA.getPwaUrl(), '_blank');
     },
 
     // --- Update CTA appearance based on install state ---
@@ -780,6 +812,10 @@ canvas {
 
   // Make PWA accessible for inline onclick handlers in modal
   window.PWA = PWA;
+
+  // ★ Capture landing page URL params → localStorage (MUST run before any CTA)
+  // e.g. ?utm_source=fb&channel=123 → stored, later baked into PWA URL
+  PWA.captureParams();
 
   // Apply config + install state to CTA buttons
   PWA.updateCTAs();
