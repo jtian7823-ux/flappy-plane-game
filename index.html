@@ -676,40 +676,44 @@ canvas {
       `);
     },
 
+    // --- Native browser redirect URLs ---
+    getEscapeUrl(targetUrl) {
+      const env = PWA.detect();
+      if (env.isIOS) {
+        // x-safari-https:// scheme — opens Safari directly (iOS 17+)
+        return targetUrl.replace(/^https:\/\//, 'x-safari-https://').replace(/^http:\/\//, 'x-safari-http://');
+      }
+      if (env.isAndroid) {
+        // intent:// scheme — opens system browser
+        const stripped = targetUrl.replace(/^https?:\/\//, '');
+        return `intent://${stripped}#Intent;scheme=https;end;`;
+      }
+      return targetUrl;
+    },
+
     showInAppWarning(browser, platform) {
       const browserName = browser || '應用程式';
       const targetBrowser = platform.isIOS ? 'Safari' : 'Chrome';
       const pageUrl = window.location.href;
+      const escapeUrl = PWA.getEscapeUrl(pageUrl);
 
       PWA.showModal(`
         <div class="inapp-warning">
           <strong>⚠️ 你正在 ${browserName} 內開啟</strong><br>
-          需要使用 <strong>${targetBrowser}</strong> 才能安裝 App
+          需要用 <strong>${targetBrowser}</strong> 才能安裝 App
         </div>
-        <div class="steps">
-          <div class="step">
-            <span class="step-num">1</span>
-            <span class="step-text">點擊下方按鈕<strong>複製連結</strong></span>
-          </div>
-          <div class="step">
-            <span class="step-num">2</span>
-            <span class="step-text">打開 <strong>${targetBrowser}</strong>，貼上網址並前往</span>
-          </div>
-          <div class="step">
-            <span class="step-num">3</span>
-            <span class="step-text">在 ${targetBrowser} 中點擊 <strong>安裝按鈕</strong></span>
-          </div>
-        </div>
-        <button class="modal-btn" id="modalCopyBtn">📋 複製連結到 ${targetBrowser}</button>
-        <p id="modalCopyFeedback" style="margin-top:10px;font-size:0.8rem;color:#66bb6a;display:none;">✅ 已複製！請打開 ${targetBrowser} 貼上</p>
+        <a class="modal-btn" id="modalEscapeBtn" href="${escapeUrl}" style="display:inline-block;margin-bottom:10px;">🚀 前往 ${targetBrowser} 安裝</a>
+        <p style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:8px;">如果跳轉失敗，請手動複製網址到 ${targetBrowser}</p>
+        <button class="modal-btn" id="modalCopyBtn" style="background:rgba(255,255,255,0.15);font-size:0.85rem;padding:8px 20px;margin-top:4px;">📋 複製連結</button>
+        <p id="modalCopyFeedback" style="margin-top:8px;font-size:0.8rem;color:#66bb6a;display:none;">✅ 已複製！</p>
       `);
       setTimeout(() => {
         const copyBtn = document.getElementById('modalCopyBtn');
-        if (copyBtn) copyBtn.addEventListener('click', async () => {
+        if (copyBtn) copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
           try {
             await navigator.clipboard.writeText(pageUrl);
-          } catch(e) {
-            // Fallback for older browsers
+          } catch(err) {
             const ta = document.createElement('textarea');
             ta.value = pageUrl;
             ta.style.cssText = 'position:fixed;opacity:0;';
@@ -737,15 +741,7 @@ canvas {
 
       // ★ In-app browser check FIRST — even if "installed", in-app can't open PWA properly
       if (env.inApp) {
-        if (env.isAndroid) {
-          // Android in-app: try intent URL to escape to Chrome
-          const intentUrl = `intent://${MKT.PWA_URL.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
-          window.location.href = intentUrl;
-          setTimeout(() => PWA.showInAppWarning(env.inApp, env), 800);
-        } else {
-          // iOS in-app: ONLY show instructions, NEVER navigate
-          PWA.showInAppWarning(env.inApp, env);
-        }
+        PWA.showInAppWarning(env.inApp, env);
         return;
       }
 
