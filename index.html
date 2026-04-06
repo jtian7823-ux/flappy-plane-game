@@ -769,6 +769,10 @@ canvas {
 
     // --- Main CTA handler ---
     handleCTA() {
+      // ★ Re-capture params at click time — ensures latest URL params are used,
+      //   not stale ones from page load (URL may have changed via history API, etc.)
+      PWA.captureParams();
+
       const env = PWA.detect();
 
       // ★ In-app browser check FIRST — even if "installed", in-app can't open PWA properly
