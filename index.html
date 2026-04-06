@@ -766,14 +766,15 @@ canvas {
       ctx.fillStyle = '#ffd166';
       ctx.shadowColor = 'rgba(255,209,102,0.6)';
       ctx.shadowBlur = 20;
-      ctx.fillText(bestScore.toString(), 0, 0);
+      const scoreStr = bestScore.toString();
+      const scoreWidth = ctx.measureText(scoreStr).width;
+      ctx.fillText(scoreStr, 0, 0);
       ctx.shadowBlur = 0;
 
-      // NEW badge
+      // NEW badge — positioned using the 32px font measurement
       ctx.font = "bold 11px 'Segoe UI', system-ui, sans-serif";
       ctx.fillStyle = '#ff6b6b';
-      const badgeX = ctx.measureText(bestScore.toString()).width / 2 + 10;
-      ctx.fillText('NEW!', badgeX, -15);
+      ctx.fillText('NEW!', scoreWidth / 2 + 8, -18);
       ctx.restore();
     } else {
       ctx.font = "bold 32px 'Segoe UI', system-ui, sans-serif";
