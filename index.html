@@ -144,7 +144,7 @@ canvas {
 .pwa-cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 32px;
   font-size: clamp(0.85rem, 3.5vw, 1.15rem);
   font-weight: 800;
@@ -173,11 +173,12 @@ canvas {
   transform: translateY(0) scale(0.97);
 }
 .pwa-cta .cta-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 .pwa-cta .cta-text-main {
   font-weight: 900;
@@ -217,6 +218,126 @@ canvas {
 #gameCta.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ===== Install Guide Modal ===== */
+.install-modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.install-modal-backdrop.visible {
+  display: flex;
+}
+.install-modal {
+  background: linear-gradient(135deg, #1a1a3e 0%, #2a2a5e 100%);
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(255,149,0,0.15);
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+  position: relative;
+}
+.install-modal .modal-close {
+  position: absolute;
+  top: 12px; right: 16px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.install-modal .modal-close:hover {
+  color: #fff;
+}
+.install-modal .modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  margin: 0 auto 16px;
+  display: block;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.install-modal h3 {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+.install-modal .modal-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 20px;
+}
+.install-modal .steps {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.install-modal .step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.install-modal .step-num {
+  background: linear-gradient(135deg, #ff9500, #ff6a00);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.install-modal .step-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.9);
+  padding-top: 3px;
+}
+.install-modal .step-text strong {
+  color: #ffd166;
+}
+.install-modal .modal-btn {
+  display: inline-block;
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #ff9500, #e55d00);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+.install-modal .modal-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(255,149,0,0.5);
+}
+/* In-app browser warning style */
+.install-modal .inapp-warning {
+  background: rgba(255,107,107,0.15);
+  border: 1px solid rgba(255,107,107,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+}
+.install-modal .inapp-warning strong {
+  color: #ff6b6b;
 }
 
 /* ===== Score HUD ===== */
@@ -272,13 +393,13 @@ canvas {
     <p class="subtitle">How far can you fly?</p>
     <p class="tagline">Tap to fly. Dodge the obstacles. Beat your best.</p>
     <button id="playBtn">PLAY NOW</button>
-    <a id="landingCta" class="pwa-cta" href="#" target="_blank" rel="noopener">
+    <button id="landingCta" class="pwa-cta">
       <img class="cta-icon" src="app-icon.png" alt="App Icon" />
       <span>
         <span class="cta-text-main">GET THE APP</span>
         <span class="cta-text-sub">Exclusive rewards inside</span>
       </span>
-    </a>
+    </button>
   </div>
 </div>
 
@@ -289,13 +410,24 @@ canvas {
 <div id="scoreFlash"></div>
 
 <!-- In-game floating CTA (shown during ready & dead states) -->
-<a id="gameCta" class="pwa-cta" href="#" target="_blank" rel="noopener">
+<button id="gameCta" class="pwa-cta">
   <img class="cta-icon" src="app-icon.png" alt="App Icon" />
   <span>
     <span class="cta-text-main">GET THE APP</span>
     <span class="cta-text-sub">Exclusive rewards inside</span>
   </span>
-</a>
+</button>
+
+<!-- Install Guide Modal -->
+<div id="installModal" class="install-modal-backdrop">
+  <div class="install-modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <img class="modal-icon" id="modalIcon" src="app-icon.png" alt="App Icon" />
+    <h3 id="modalTitle">Install App</h3>
+    <p class="modal-subtitle" id="modalSubtitle">Follow these steps</p>
+    <div id="modalBody"></div>
+  </div>
+</div>
 
 <!-- Game canvas -->
 <div id="gameContainer">
@@ -307,23 +439,313 @@ canvas {
   'use strict';
 
   // ============ MARKETING CONFIG ============
-  // Client-specific settings — change these per client
+  // Client delivers: PWA_URL, APP_ICON (180×180 PNG), APP_NAME
   const MKT = {
-    // Client's PWA install URL — player taps CTA → opens this URL to install client's PWA app
-    PWA_URL: 'https://example.com/install',
-    // Client's app icon image (provided by client)
-    APP_ICON: 'app-icon.png',
-    // CTA copy
-    CTA_MAIN: 'GET THE APP',
-    CTA_SUB: 'Exclusive rewards inside',
+    PWA_URL: 'https://example.com',         // Client's PWA website URL
+    APP_ICON: 'app-icon.png',               // Client's app icon (180×180 PNG)
+    APP_NAME: 'My App',                     // App name shown on home screen
+    CTA_INSTALL: 'GET THE APP',             // CTA text — not yet installed
+    CTA_OPEN: 'OPEN APP',                   // CTA text — already installed
+    CTA_SUB: 'Exclusive rewards inside',    // CTA subtitle
   };
 
-  // Apply config to CTA buttons
+  // ============ PWA INSTALL ENGINE ============
+  const PWA = {
+    // --- Platform Detection ---
+    detect() {
+      const ua = navigator.userAgent || '';
+      const isIOS = /iPhone|iPad|iPod/.test(ua) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isAndroid = /Android/.test(ua);
+      const isSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+      const isChrome = isAndroid && /Chrome/.test(ua) && !/EdgA|OPR/.test(ua);
+
+      // In-app browser detection
+      let inApp = null;
+      if (/FBAN|FBAV/i.test(ua)) inApp = 'Facebook';
+      else if (/Instagram/i.test(ua)) inApp = 'Instagram';
+      else if (/\bLine\//i.test(ua)) inApp = 'LINE';
+      else if (/Twitter/i.test(ua)) inApp = 'Twitter';
+      else if (isIOS && !isSafari && !/CriOS|FxiOS|EdgiOS/.test(ua) && /AppleWebKit/.test(ua)) inApp = 'WebView';
+      else if (isAndroid && /wv|WebView/i.test(ua)) inApp = 'WebView';
+
+      return { isIOS, isAndroid, isSafari, isChrome, inApp };
+    },
+
+    // --- Already-installed detection ---
+    isInstalled() {
+      return localStorage.getItem('pwa_installed') === '1';
+    },
+    markInstalled() {
+      localStorage.setItem('pwa_installed', '1');
+    },
+
+    // --- iOS: Generate .mobileconfig WebClip ---
+    async generateMobileConfig() {
+      // Convert icon to base64
+      const iconB64 = await PWA.iconToBase64(MKT.APP_ICON);
+      const uuid1 = crypto.randomUUID();
+      const uuid2 = crypto.randomUUID();
+      const ts = Date.now();
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadDisplayName</key>
+  <string>${PWA.escXML(MKT.APP_NAME)}</string>
+  <key>PayloadDescription</key>
+  <string>Install ${PWA.escXML(MKT.APP_NAME)}</string>
+  <key>PayloadIdentifier</key>
+  <string>com.pwa.${ts}</string>
+  <key>PayloadOrganization</key>
+  <string>${PWA.escXML(MKT.APP_NAME)}</string>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>${uuid1}</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadIdentifier</key>
+      <string>com.pwa.webclip.${ts}</string>
+      <key>PayloadUUID</key>
+      <string>${uuid2}</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>${PWA.escXML(MKT.APP_NAME)}</string>
+      <key>Label</key>
+      <string>${PWA.escXML(MKT.APP_NAME)}</string>
+      <key>URL</key>
+      <string>${PWA.escXML(MKT.PWA_URL)}</string>
+      <key>FullScreen</key>
+      <true/>
+      <key>Icon</key>
+      <data>${iconB64}</data>
+      <key>Precomposed</key>
+      <true/>
+      <key>IsRemovable</key>
+      <true/>
+    </dict>
+  </array>
+</dict>
+</plist>`;
+      return xml;
+    },
+
+    iconToBase64(src) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 180; c.height = 180;
+          const cx = c.getContext('2d');
+          cx.drawImage(img, 0, 0, 180, 180);
+          const dataUrl = c.toDataURL('image/png');
+          resolve(dataUrl.split(',')[1]); // strip prefix
+        };
+        img.onerror = () => resolve('');
+        img.src = src;
+      });
+    },
+
+    escXML(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+    },
+
+    async downloadMobileConfig() {
+      const xml = await PWA.generateMobileConfig();
+      const blob = new Blob([xml], { type: 'application/x-apple-aspen-config' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${MKT.APP_NAME.replace(/\s+/g, '-')}.mobileconfig`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      PWA.markInstalled();
+    },
+
+    // --- Modal UI ---
+    showModal(content) {
+      const modal = document.getElementById('installModal');
+      const body = document.getElementById('modalBody');
+      document.getElementById('modalIcon').src = MKT.APP_ICON;
+      document.getElementById('modalTitle').textContent = MKT.APP_NAME;
+      body.innerHTML = content;
+      modal.classList.add('visible');
+    },
+
+    hideModal() {
+      document.getElementById('installModal').classList.remove('visible');
+    },
+
+    showIOSGuide() {
+      PWA.showModal(`
+        <p class="modal-subtitle">描述檔即將下載</p>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <span class="step-text">點擊下方按鈕<strong>下載描述檔</strong></span>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <span class="step-text">前往 <strong>設定</strong> → 看到「已下載描述檔」提示</span>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <span class="step-text">點擊 <strong>安裝</strong> → 輸入密碼 → 完成</span>
+          </div>
+        </div>
+        <button class="modal-btn" id="modalDownloadBtn">📥 下載安裝檔</button>
+      `);
+      setTimeout(() => {
+        const dlBtn = document.getElementById('modalDownloadBtn');
+        if (dlBtn) dlBtn.addEventListener('click', async () => {
+          await PWA.downloadMobileConfig();
+          PWA.showIOSPostInstall();
+        });
+      }, 50);
+    },
+
+    showIOSPostInstall() {
+      PWA.showModal(`
+        <p class="modal-subtitle">描述檔已下載！</p>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">✓</span>
+            <span class="step-text">開啟 <strong>設定 App</strong></span>
+          </div>
+          <div class="step">
+            <span class="step-num">→</span>
+            <span class="step-text">點擊「<strong>已下載描述檔</strong>」通知</span>
+          </div>
+          <div class="step">
+            <span class="step-num">→</span>
+            <span class="step-text">點擊右上角 <strong>安裝</strong> → 輸入密碼</span>
+          </div>
+        </div>
+        <button class="modal-btn" onclick="PWA.hideModal()">👍 我知道了</button>
+      `);
+    },
+
+    showInAppWarning(browser, platform) {
+      const browserName = browser || '應用程式';
+      const targetBrowser = platform.isIOS ? 'Safari' : 'Chrome';
+      const instructions = {
+        'Facebook': `點擊右下角 <strong>⋯</strong> 選單 → <strong>在 ${targetBrowser} 中開啟</strong>`,
+        'Instagram': `點擊右上角 <strong>⋯</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
+        'LINE': `點擊右下角 <strong>⋮</strong> → <strong>在預設瀏覽器開啟</strong>`,
+        'Twitter': `點擊右下角 <strong>⋯</strong> → <strong>在 ${targetBrowser} 中開啟</strong>`,
+        'WebView': `請複製網址，到 <strong>${targetBrowser}</strong> 貼上開啟`,
+      };
+
+      PWA.showModal(`
+        <div class="inapp-warning">
+          <strong>⚠️ 你正在 ${browserName} 內開啟</strong><br>
+          需要使用 <strong>${targetBrowser}</strong> 才能安裝 App
+        </div>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <span class="step-text">${instructions[browser] || instructions['WebView']}</span>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <span class="step-text">在 ${targetBrowser} 中重新點擊 <strong>安裝按鈕</strong></span>
+          </div>
+        </div>
+        <button class="modal-btn" onclick="PWA.hideModal()">了解</button>
+      `);
+    },
+
+    showAndroidGuide() {
+      // Android: open the PWA_URL directly, Chrome will handle install prompt
+      window.open(MKT.PWA_URL, '_blank');
+      PWA.markInstalled();
+    },
+
+    // --- Main CTA handler ---
+    handleCTA() {
+      const env = PWA.detect();
+
+      // Already installed → just open the app
+      if (PWA.isInstalled()) {
+        window.open(MKT.PWA_URL, '_blank');
+        return;
+      }
+
+      // In-app browser → warn and guide
+      if (env.inApp) {
+        // Android in-app: try intent URL first
+        if (env.isAndroid) {
+          const intentUrl = `intent://${MKT.PWA_URL.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
+          window.location.href = intentUrl;
+          // Fallback: show instructions after brief delay
+          setTimeout(() => PWA.showInAppWarning(env.inApp, env), 800);
+        } else {
+          PWA.showInAppWarning(env.inApp, env);
+        }
+        return;
+      }
+
+      // iOS Safari → download .mobileconfig
+      if (env.isIOS) {
+        PWA.showIOSGuide();
+        return;
+      }
+
+      // Android Chrome → open PWA URL (Chrome handles install)
+      if (env.isAndroid) {
+        PWA.showAndroidGuide();
+        return;
+      }
+
+      // Desktop / other → just open URL
+      window.open(MKT.PWA_URL, '_blank');
+    },
+
+    // --- Update CTA appearance based on install state ---
+    updateCTAs() {
+      const installed = PWA.isInstalled();
+      document.querySelectorAll('.pwa-cta').forEach(btn => {
+        btn.querySelector('.cta-text-main').textContent = installed ? MKT.CTA_OPEN : MKT.CTA_INSTALL;
+        btn.querySelector('.cta-text-sub').textContent = installed ? MKT.APP_NAME : MKT.CTA_SUB;
+        btn.querySelector('.cta-icon').src = MKT.APP_ICON;
+      });
+    },
+  };
+
+  // Make PWA accessible for inline onclick handlers in modal
+  window.PWA = PWA;
+
+  // Apply config + install state to CTA buttons
+  PWA.updateCTAs();
+
+  // Bind CTA click handlers
   document.querySelectorAll('.pwa-cta').forEach(btn => {
-    btn.href = MKT.PWA_URL;
-    btn.querySelector('.cta-text-main').textContent = MKT.CTA_MAIN;
-    btn.querySelector('.cta-text-sub').textContent = MKT.CTA_SUB;
-    btn.querySelector('.cta-icon').src = MKT.APP_ICON;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      PWA.handleCTA();
+    });
+  });
+
+  // Modal close
+  document.getElementById('modalClose').addEventListener('click', PWA.hideModal);
+  document.getElementById('installModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) PWA.hideModal();
   });
 
   // ============ CONFIG ============
