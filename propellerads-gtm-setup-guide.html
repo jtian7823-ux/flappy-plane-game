@@ -200,6 +200,54 @@
       border-top: 1px solid #1e293b;
     }
 
+    /* URL Generator */
+    .gen-input-wrap {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0 10px;
+      flex-wrap: wrap;
+    }
+    .gen-input {
+      flex: 1;
+      min-width: 200px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+      font-family: 'Menlo', 'Monaco', monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .gen-input:focus { border-color: #2563eb; }
+    .gen-input::placeholder { color: #475569; }
+    .gen-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .gen-btn:hover { background: #1d4ed8; }
+    .gen-result {
+      display: none;
+      margin-top: 10px;
+    }
+    .gen-result.show { display: block; }
+    .gen-result-label {
+      font-size: 0.78rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
     @media (max-width: 600px) {
       body { padding: 20px 12px; }
       .card { padding: 20px; }
@@ -229,6 +277,23 @@
       <div class="code-block" id="c1">https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid={SUBID}&id1=3899879&id2=154469</div>
       <button class="copy-btn" onclick="cp('c1',this)">複製</button>
     </div>
+
+    <!-- URL Generator -->
+    <h3>🛠 投放連結產生器</h3>
+    <p style="margin-bottom:6px;">輸入落地頁網址，自動加上追蹤參數：</p>
+    <div class="gen-input-wrap">
+      <input class="gen-input" id="gen-url-input" type="url"
+        placeholder="https://your-landing-page.com/"
+        oninput="genTrackingUrl()" />
+    </div>
+    <div class="gen-result" id="gen-result">
+      <div class="gen-result-label">產生的投放連結</div>
+      <div class="code-wrap">
+        <div class="code-block" id="gen-output" style="word-break:break-all; white-space:pre-wrap;"></div>
+        <button class="copy-btn" id="gen-copy-btn" onclick="cp('gen-output',this)">複製</button>
+      </div>
+    </div>
+
     <h3>參數說明</h3>
     <table>
       <tr><th>參數</th><th>對應值</th><th>說明</th></tr>
@@ -418,6 +483,33 @@ function cp(id, btn) {
       btn.classList.remove('copied');
     }, 2000);
   });
+}
+
+function genTrackingUrl() {
+  var input = document.getElementById('gen-url-input').value.trim();
+  var result = document.getElementById('gen-result');
+  var output = document.getElementById('gen-output');
+
+  if (!input) {
+    result.classList.remove('show');
+    return;
+  }
+
+  // Ensure valid URL format
+  var base = input;
+  if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+
+  try {
+    var url = new URL(base);
+    url.searchParams.set('utm_prid', '{SUBID}');
+    url.searchParams.set('id1', '3899879');
+    url.searchParams.set('id2', '154469');
+    output.textContent = url.toString();
+    result.classList.add('show');
+  } catch(e) {
+    output.textContent = '⚠️ 請輸入有效的網址（例如 https://example.com）';
+    result.classList.add('show');
+  }
 }
 </script>
 </body>
