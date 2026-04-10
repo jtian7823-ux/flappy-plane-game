@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PropellerAds GTM 設定指南</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+
+    .header {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 28px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; color: #f8fafc; margin-bottom: 10px; }
+    .header p { color: #64748b; font-size: 0.9rem; }
+    .badge {
+      display: inline-block;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border: 1px solid #2563eb44;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-right: 6px;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 20px 0 10px;
+    }
+    .card p { color: #cbd5e1; font-size: 0.95rem; margin-bottom: 10px; }
+
+    /* Code blocks */
+    .code-wrap { position: relative; margin: 12px 0; }
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e40af;
+      border-radius: 8px;
+      padding: 16px 20px;
+      padding-right: 70px;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: #7dd3fc;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border: 1px solid #2563eb44;
+      border-radius: 5px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: #2563eb55; }
+    .copy-btn.copied { color: #4ade80; border-color: #4ade8044; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th {
+      background: #0f172a;
+      color: #64748b;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+    td { padding: 11px 14px; border-bottom: 1px solid #1e293b; font-size: 0.9rem; color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      background: #0f172a;
+      color: #7dd3fc;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-family: monospace;
+    }
+
+    /* Flow */
+    .flow { display: flex; flex-direction: column; }
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px dashed #334155;
+      align-items: flex-start;
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1e3a5f;
+      color: #60a5fa;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { color: #f1f5f9; display: block; margin-bottom: 4px; }
+    .step-body span { color: #94a3b8; font-size: 0.9rem; }
+
+    /* Alert */
+    .alert {
+      background: #1c1917;
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 0.88rem;
+      color: #fcd34d;
+    }
+    .alert-green {
+      background: #052e16;
+      border-left-color: #4ade80;
+      color: #86efac;
+    }
+
+    /* Priority list */
+    .priority-list { list-style: none; }
+    .priority-list li {
+      padding: 10px 0 10px 28px;
+      position: relative;
+      border-bottom: 1px solid #1e293b;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+    .priority-list li:last-child { border-bottom: none; }
+    .priority-list li .num {
+      position: absolute; left: 0;
+      width: 20px; height: 20px;
+      background: #1e3a5f; color: #60a5fa;
+      border-radius: 50%; font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      top: 12px;
+    }
+
+    .tag-label {
+      display: inline-block;
+      background: #14532d;
+      color: #4ade80;
+      border-radius: 4px;
+      padding: 1px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .tag-label.orange { background: #431407; color: #fb923c; }
+    .tag-label.blue { background: #1e3a5f; color: #60a5fa; }
+
+    .footer {
+      text-align: center;
+      color: #334155;
+      font-size: 0.8rem;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #1e293b;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 20px 12px; }
+      .card { padding: 20px; }
+      .code-block { font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>PropellerAds GTM 設定指南</h1>
+    <p>含 localStorage fallback 跨訪次歸因架構</p>
+    <div style="margin-top:12px;">
+      <span class="badge">id1 = aid</span>
+      <span class="badge">id2 = tid</span>
+      <span class="badge">utm_prid = visitor_id</span>
+    </div>
+  </div>
+
+  <!-- 投放連結 -->
+  <div class="card">
+    <h2>🔗 投放連結格式</h2>
+    <p>在 PropellerAds 後台的 <strong style="color:#f1f5f9;">Landing Page URL</strong> 欄位填入：</p>
+    <div class="code-wrap">
+      <div class="code-block" id="c1">https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid={SUBID}&id1=3899879&id2=154469</div>
+      <button class="copy-btn" onclick="cp('c1',this)">複製</button>
+    </div>
+    <h3>參數說明</h3>
+    <table>
+      <tr><th>參數</th><th>對應值</th><th>說明</th></tr>
+      <tr><td><code>utm_prid</code></td><td><code>{SUBID}</code></td><td>PropellerAds 自動替換的訪客 ID macro</td></tr>
+      <tr><td><code>id1</code></td><td><code>3899879</code></td><td>廣告帳號識別碼（aid）</td></tr>
+      <tr><td><code>id2</code></td><td><code>154469</code></td><td>追蹤模板識別碼（tid）</td></tr>
+    </table>
+    <div class="alert">⚠️ 三個參數缺一不可，缺少任何一個都無法正確回傳轉換</div>
+  </div>
+
+  <!-- localStorage 歸因邏輯 -->
+  <div class="card">
+    <h2>💾 localStorage 歸因邏輯</h2>
+    <p>訪客進入頁面時，JS 自動執行以下優先順序讀取：</p>
+    <ul class="priority-list">
+      <li><span class="num">1</span><strong style="color:#f1f5f9;">URL 參數（最優先）</strong>　讀取 <code>utm_prid</code>、<code>id1</code>、<code>id2</code>，同時寫入 localStorage 更新快取</li>
+      <li><span class="num">2</span><strong style="color:#f1f5f9;">localStorage（fallback）</strong>　訪客第二次入站、URL 無參數時，從快取讀取</li>
+      <li><span class="num">3</span><strong style="color:#f1f5f9;">都沒有 → 不觸發</strong>　無法歸因時，Deposit tag 不發送 conversion request</li>
+    </ul>
+    <h3>落地頁初始化代碼（加入 index.html）</h3>
+    <div class="code-wrap">
+      <div class="code-block" id="c2">(function() {
+  var p = new URLSearchParams(location.search);
+  var prid = p.get('utm_prid');
+  var id1  = p.get('id1');
+  var id2  = p.get('id2');
+
+  // 優先用 URL 參數，有值就寫入 localStorage
+  if (prid) localStorage.setItem('_prid', prid);
+  if (id1)  localStorage.setItem('_id1',  id1);
+  if (id2)  localStorage.setItem('_id2',  id2);
+})();</div>
+      <button class="copy-btn" onclick="cp('c2',this)">複製</button>
+    </div>
+    <div class="alert-green alert">✅ Cookie 有效期 30 天，localStorage 永久保留（除非用戶清除）</div>
+  </div>
+
+  <!-- GTM Tags -->
+  <div class="card">
+    <h2>⚙️ GTM Tags 設定</h2>
+
+    <!-- Tag 1 -->
+    <h3><span class="tag-label blue">TAG 1</span> PropellerAds Cookie — All Pages</h3>
+    <p>讀取 URL 參數存入 Cookie，供舊版歸因備用。</p>
+    <div class="code-wrap">
+      <div class="code-block" id="c3">&lt;script&gt;
+var p = new URLSearchParams(location.search);
+var prid = p.get('utm_prid');
+var id1  = p.get('id1');
+var id2  = p.get('id2');
+
+// Cookie（30天）
+if (prid) {
+  var exp = new Date();
+  exp.setTime(exp.getTime() + 30*24*60*60*1000);
+  document.cookie = 'prop_visitor_id=' + prid + '; expires=' + exp.toUTCString() + '; path=/';
+}
+
+// localStorage（同步更新）
+if (prid) localStorage.setItem('_prid', prid);
+if (id1)  localStorage.setItem('_id1',  id1);
+if (id2)  localStorage.setItem('_id2',  id2);
+&lt;/script&gt;</div>
+      <button class="copy-btn" onclick="cp('c3',this)">複製</button>
+    </div>
+
+    <!-- Tag 2 -->
+    <h3><span class="tag-label">TAG 2</span> PropellerAds Registration — Registration Trigger</h3>
+    <div class="code-wrap">
+      <div class="code-block" id="c4">&lt;script&gt;
+var visitorId = localStorage.getItem('_prid') ||
+  ('; ' + document.cookie).split('; prop_visitor_id=').pop().split(';')[0];
+var aid = localStorage.getItem('_id1');
+var tid = localStorage.getItem('_id2');
+
+if (visitorId &amp;&amp; aid &amp;&amp; tid) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET',
+    'https://ad.propellerads.com/conversion.php' +
+    '?aid=' + encodeURIComponent(aid) +
+    '&amp;pid=&amp;tid=' + encodeURIComponent(tid) +
+    '&amp;visitor_id=' + encodeURIComponent(visitorId),
+    true
+  );
+  xhr.send();
+}
+&lt;/script&gt;</div>
+      <button class="copy-btn" onclick="cp('c4',this)">複製</button>
+    </div>
+
+    <!-- Tag 3 -->
+    <h3><span class="tag-label orange">TAG 3</span> PropellerAds Deposit — Deposit Trigger</h3>
+    <div class="code-wrap">
+      <div class="code-block" id="c5">&lt;script&gt;
+var visitorId = localStorage.getItem('_prid') ||
+  ('; ' + document.cookie).split('; prop_visitor_id=').pop().split(';')[0];
+var aid = localStorage.getItem('_id1');
+var tid = localStorage.getItem('_id2');
+
+if (visitorId &amp;&amp; aid &amp;&amp; tid) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET',
+    'https://ad.propellerads.com/conversion.php' +
+    '?aid=' + encodeURIComponent(aid) +
+    '&amp;pid=&amp;tid=' + encodeURIComponent(tid) +
+    '&amp;goal=2' +
+    '&amp;visitor_id=' + encodeURIComponent(visitorId),
+    true
+  );
+  xhr.send();
+}
+&lt;/script&gt;</div>
+      <button class="copy-btn" onclick="cp('c5',this)">複製</button>
+    </div>
+  </div>
+
+  <!-- 更換 aid/tid -->
+  <div class="card">
+    <h2>🔄 更換 aid / tid</h2>
+    <p>未來更換廣告帳號時，只需要修改投放連結的 <code>id1</code> 和 <code>id2</code> 值，GTM 代碼不需要改動。</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>修改投放連結</strong>
+          <span>把 <code>id1=NEW_AID&id2=NEW_TID</code> 填入 PropellerAds 後台</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>GTM 自動接收新值</strong>
+          <span>落地頁 JS 讀取新 id1/id2 → 存入 localStorage → GTM tag 使用新值</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>舊訪客自動更新</strong>
+          <span>訪客下次帶新參數入站時，localStorage 會被覆蓋為新值</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 測試 SOP -->
+  <div class="card">
+    <h2>🧪 測試 SOP</h2>
+    <div class="code-wrap">
+      <div class="code-block" id="c6">https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid=test123&id1=3899879&id2=154469</div>
+      <button class="copy-btn" onclick="cp('c6',this)">複製測試網址</button>
+    </div>
+    <div class="flow" style="margin-top:16px;">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>開啟測試網址</strong><span>用瀏覽器開啟上方連結</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>確認 localStorage</strong><span>DevTools → Application → Local Storage → 確認 <code>_prid=test123</code>、<code>_id1=3899879</code>、<code>_id2=154469</code> ✅</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>觸發 Deposit 事件</strong><span>Network tab 搜尋 <code>conversion.php</code> → 確認 URL 含 <code>goal=2</code> 和正確的 <code>aid</code>/<code>tid</code>/<code>visitor_id</code> ✅</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>測試 fallback</strong><span>清除 URL 參數重新進入頁面 → Deposit 仍能正確觸發（從 localStorage 讀取）✅</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    PropellerAds Conversion Tracking · id1=aid · id2=tid · 版本 2026-04-10
+  </div>
+
+</div>
+<script>
+function cp(id, btn) {
+  var el = document.getElementById(id);
+  var text = el.innerText.trim();
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '複製';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
