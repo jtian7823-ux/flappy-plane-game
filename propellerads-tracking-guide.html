@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PropellerAds 投放追蹤指南</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container { max-width: 760px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; color: #f8fafc; margin-bottom: 8px; }
+    .header .meta { font-size: 0.85rem; color: #64748b; }
+    .badge {
+      display: inline-block;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border: 1px solid #2563eb44;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-right: 8px;
+    }
+
+    /* Section */
+    .section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section h2 .icon { font-size: 1.2rem; }
+    .section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin: 20px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Code block */
+    .code-block {
+      background: #0f172a;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'Menlo', 'Monaco', monospace;
+      font-size: 0.9rem;
+      color: #7dd3fc;
+      word-break: break-all;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border: 1px solid #2563eb44;
+      border-radius: 5px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: #2563eb44; }
+    .copy-btn.copied { color: #4ade80; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th {
+      background: #0f172a;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #334155;
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+    td code {
+      background: #0f172a;
+      color: #7dd3fc;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .required { color: #4ade80; font-weight: 600; }
+
+    /* Flow */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .flow-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+    }
+    .flow-item:not(:last-child) {
+      border-bottom: 1px dashed #334155;
+    }
+    .flow-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #1e3a5f;
+      color: #60a5fa;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .flow-text { color: #cbd5e1; font-size: 0.95rem; }
+    .flow-text strong { color: #f1f5f9; }
+
+    /* Notes */
+    .note-list { list-style: none; }
+    .note-list li {
+      padding: 8px 0 8px 20px;
+      position: relative;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .note-list li:last-child { border-bottom: none; }
+    .note-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #475569;
+    }
+    .note-list li strong { color: #e2e8f0; }
+
+    /* Test steps */
+    .test-steps { list-style: none; counter-reset: step; }
+    .test-steps li {
+      counter-increment: step;
+      padding: 10px 0 10px 36px;
+      position: relative;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .test-steps li:last-child { border-bottom: none; }
+    .test-steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      width: 22px;
+      height: 22px;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 12px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: #334155;
+      font-size: 0.8rem;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #1e293b;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>PropellerAds 投放追蹤指南</h1>
+    <div class="meta" style="margin-top:12px;">
+      <span class="badge">aid=3899879</span>
+      <span class="badge">tid=154469</span>
+      <span style="color:#475569; font-size:0.8rem;">版本：2026-04-10</span>
+    </div>
+  </div>
+
+  <!-- 落地頁網址 -->
+  <div class="section">
+    <h2><span class="icon">🌐</span> 落地頁網址</h2>
+    <div class="code-block" id="lp-url">
+      https://jtian7823-ux.github.io/flappy-plane-game/
+      <button class="copy-btn" onclick="copyText('lp-url', this)">複製</button>
+    </div>
+  </div>
+
+  <!-- 投放連結 -->
+  <div class="section">
+    <h2><span class="icon">🔗</span> 投放連結格式（必帶參數）</h2>
+    <div class="code-block" id="tracking-url">
+      https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid={SUBID}
+      <button class="copy-btn" onclick="copyText('tracking-url', this)">複製</button>
+    </div>
+
+    <h3>參數說明</h3>
+    <table>
+      <tr>
+        <th>參數</th>
+        <th>必填</th>
+        <th>說明</th>
+      </tr>
+      <tr>
+        <td><code>utm_prid</code></td>
+        <td><span class="required">✅ 必填</span></td>
+        <td>PropellerAds 的 Subid macro，系統投放時自動替換為真實訪客 ID</td>
+      </tr>
+    </table>
+
+    <h3>PropellerAds 後台填法</h3>
+    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:12px;">在廣告設定的 <strong style="color:#e2e8f0;">Landing Page URL</strong> 欄位填入：</p>
+    <div class="code-block" id="backend-url">
+      https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid={SUBID}
+      <button class="copy-btn" onclick="copyText('backend-url', this)">複製</button>
+    </div>
+    <p style="color:#475569; font-size:0.85rem; margin-top:10px;">
+      <code style="background:#0f172a; color:#7dd3fc; padding:2px 6px; border-radius:4px;">{SUBID}</code> 是動態 macro，不需要手動替換，PropellerAds 系統投放時自動填入。
+    </p>
+  </div>
+
+  <!-- 追蹤流程 -->
+  <div class="section">
+    <h2><span class="icon">⚡</span> 追蹤流程</h2>
+    <div class="flow">
+      <div class="flow-item">
+        <div class="flow-num">1</div>
+        <div class="flow-text">用戶點擊廣告，進入落地頁（URL 帶 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">utm_prid=xxxxx</code>）</div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-num">2</div>
+        <div class="flow-text"><strong>GTM</strong> 自動讀取 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">utm_prid</code>，存入 Cookie（<code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">prop_visitor_id</code>）</div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-num">3</div>
+        <div class="flow-text">用戶完成<strong>註冊</strong> → GTM 觸發 Registration tag → 回傳轉換給 PropellerAds</div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-num">4</div>
+        <div class="flow-text">用戶完成<strong>首存</strong> → GTM 觸發 Deposit tag（goal=2）→ 回傳轉換給 PropellerAds</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 測試方法 -->
+  <div class="section">
+    <h2><span class="icon">🧪</span> 測試方法</h2>
+    <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:12px;">用測試 subid 開啟落地頁：</p>
+    <div class="code-block" id="test-url">
+      https://jtian7823-ux.github.io/flappy-plane-game/?utm_prid=test123
+      <button class="copy-btn" onclick="copyText('test-url', this)">複製</button>
+    </div>
+    <h3 style="margin-top:20px;">驗證步驟</h3>
+    <ol class="test-steps">
+      <li>打開瀏覽器 DevTools（F12）</li>
+      <li>前往 Application → Cookies → 找到落地頁網域</li>
+      <li>確認 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">prop_visitor_id=test123</code> 存在 ✅</li>
+      <li>觸發註冊事件 → Network tab 搜尋 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">conversion.php</code> → 確認 GET request 含 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">visitor_id</code> ✅</li>
+      <li>觸發首存事件 → 確認 URL 含 <code style="background:#0f172a; color:#7dd3fc; padding:1px 5px; border-radius:3px;">goal=2</code> ✅</li>
+    </ol>
+  </div>
+
+  <!-- 注意事項 -->
+  <div class="section">
+    <h2><span class="icon">⚠️</span> 注意事項</h2>
+    <ul class="note-list">
+      <li><strong>utm_prid 不能省略</strong>，沒有這個參數就無法追蹤轉換</li>
+      <li><strong>Cookie 有效期 30 天</strong>，用戶在 30 天內完成轉換都會被記錄</li>
+      <li>同一個 subid 重複進入頁面不影響，Cookie 會更新為最新值</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    PropellerAds Conversion Tracking · aid=3899879 · tid=154469
+  </div>
+
+</div>
+
+<script>
+function copyText(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.childNodes[0].textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已複製 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '複製';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
